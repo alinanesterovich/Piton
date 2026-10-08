@@ -1,2 +1,2 @@
 my_name = "Alina"
-print (my_name)
+print(my_name)
