@@ -11,5 +11,8 @@ def month_to_season(month):
         return "Неверный номер месяца"
 
 
-season = month_to_season(2)
-print(season)
+month = int(input("ВВедите номер месяца: "))    
+
+
+print(month_to_season(month))
+

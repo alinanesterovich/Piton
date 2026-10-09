@@ -3,10 +3,10 @@ import math
 
 def square(side):
     area = side * side
-    if not isinstance(side, int):
-        area = math.ceil(area)
-    return area
+    if area == int(area):
+        return int(area)
+    return math.ceil(area)
 
 
-result = square(5)
+result = square(3.2)
 print(result)

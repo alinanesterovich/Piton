@@ -1,2 +1,3 @@
-lst = list(range(18, 1, -4))
-print(lst)
+numbers = list(range(18, 1, -4))
+
+print(numbers)

@@ -1,7 +1,6 @@
 def is_year_leap(year):
-    return "Да" if year % 4 == 0 else "Нет"
+    return year % 4 == 0
 
 
-num = int(input("Введите число: "))
-result = is_year_leap(num)
-print(f"Делится ли на четыре {num}? - {result}")
+result = is_year_leap(2020)
+print(f"год {2020}: {result}")
