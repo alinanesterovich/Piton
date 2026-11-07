@@ -36,6 +36,6 @@ def test_session_storage_auth():
 
     assert url_user1 != url_user2, "URL пользователя совпадают! Авторизация не работает."
     print("✅ URL пользователей различаются")
-
+    sleep(2)
 
     driver.quit()
