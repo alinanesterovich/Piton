@@ -1,0 +1,36 @@
+import os
+import pytest
+from project_api import ProjectApi
+
+
+@pytest.fixture(scope="session")
+def api_client():
+    """
+    Создаёт клиент API.
+    Токен и базовый URL берутся из переменных окружения, чтобы не хранить их в коде.
+    Наставнику нужно будет задать переменные: YOUGILE_TOKEN и YOUGILE_BASE_URL.
+    """
+    base_url = os.getenv("YOUGILE_BASE_URL", "https://yougile.com/api-v2")
+    token = os.getenv("YOUGILE_TOKEN")
+    if not token:
+        pytest.fail(
+            "Не задан токен YouGile. Установите переменную окружения YOUGILE_TOKEN."
+        )
+    return ProjectApi(base_url, token)
+
+
+@pytest.fixture
+def created_project(api_client):
+    """
+    Создаёт тестовый проект перед тестом и возвращает его ID.
+    После теста проект не удаляется (в задании нет требования удаления),
+    но каждый раз создаётся уникальное имя, чтобы тесты были идемпотентными.
+    """
+    import uuid
+
+    title = f"Autotest Project {uuid.uuid4().hex[:8]}"
+    payload = {"title": title}
+    response = api_client.create_project(payload)
+    assert response.status_code == 201, f"Не удалось создать проект: {response.text}"
+    project_id = response.json().get("id")
+    yield project_id, title

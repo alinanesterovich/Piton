@@ -1,0 +1,73 @@
+import uuid
+import pytest
+
+
+# ============================================================
+# POST /api-v2/projects
+# ============================================================
+
+def test_create_project_positive(api_client):
+    """Позитивный тест: создание проекта с валидным названием."""
+    title = f"Positive Project {uuid.uuid4().hex[:8]}"
+    response = api_client.create_project({"title": title})
+
+    assert response.status_code == 201, response.text
+    body = response.json()
+    assert "id" in body
+    assert isinstance(body["id"], str)
+
+
+def test_create_project_negative_empty_title(api_client):
+    """Негативный тест: создание проекта без обязательного поля title."""
+    response = api_client.create_project({})
+    # Ожидаем клиентскую ошибку (400 или 422), так как title обязателен
+    assert response.status_code in (400, 422), response.text
+
+
+# ============================================================
+# PUT /api-v2/projects/{id}
+# ============================================================
+
+def test_update_project_positive(api_client, created_project):
+    """Позитивный тест: обновление названия существующего проекта."""
+    project_id, _ = created_project
+    new_title = f"Updated Project {uuid.uuid4().hex[:8]}"
+
+    response = api_client.update_project(project_id, {"title": new_title})
+    assert response.status_code == 200, response.text
+
+    # Проверяем, что изменения применились через GET
+    get_resp = api_client.get_project(project_id)
+    assert get_resp.status_code == 200
+    assert get_resp.json().get("title") == new_title
+
+
+def test_update_project_negative_invalid_id(api_client):
+    """Негативный тест: обновление проекта с несуществующим ID."""
+    fake_id = str(uuid.uuid4())
+    response = api_client.update_project(fake_id, {"title": "Should fail"})
+    # Ожидаем 404, так как проекта с таким ID нет
+    assert response.status_code == 404, response.text
+
+
+# ============================================================
+# GET /api-v2/projects/{id}
+# ============================================================
+
+def test_get_project_positive(api_client, created_project):
+    """Позитивный тест: получение существующего проекта по ID."""
+    project_id, expected_title = created_project
+    response = api_client.get_project(project_id)
+
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert body.get("id") == project_id
+    assert body.get("title") == expected_title
+
+
+def test_get_project_negative_invalid_id(api_client):
+    """Негативный тест: получение проекта с несуществующим ID."""
+    fake_id = str(uuid.uuid4())
+    response = api_client.get_project(fake_id)
+    # Ожидаем 404, так как проекта с таким ID нет
+    assert response.status_code == 404, response.text
