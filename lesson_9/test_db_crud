@@ -1,0 +1,63 @@
+import pytest
+from sqlalchemy import text
+
+
+def test_add_student(db_session):
+    """Позитивный тест: добавление новой записи в таблицу students."""
+    # 1. Добавляем студента
+    insert_query = text(
+        "INSERT INTO students (name, email) VALUES (:name, :email) RETURNING id"
+    )
+    result = db_session.execute(insert_query, {"name": "Test Student", "email": "test_add@example.com"})
+    new_id = result.scalar()
+
+    assert new_id is not None, "Не удалось получить ID новой записи"
+
+    # 2. Проверяем, что запись действительно существует
+    select_query = text("SELECT name FROM students WHERE id = :id")
+    row = db_session.execute(select_query, {"id": new_id}).fetchone()
+
+    assert row is not None
+    assert row[0] == "Test Student"
+
+
+def test_update_student(db_session):
+    """Позитивный тест: изменение имени существующего студента."""
+    # 1. Сначала создаем студента
+    insert_query = text(
+        "INSERT INTO students (name, email) VALUES (:name, :email) RETURNING id"
+    )
+    result = db_session.execute(insert_query, {"name": "Old Name", "email": "test_update@example.com"})
+    student_id = result.scalar()
+
+    # 2. Обновляем имя
+    new_name = "Updated Name"
+    update_query = text("UPDATE students SET name = :name WHERE id = :id")
+    db_session.execute(update_query, {"name": new_name, "id": student_id})
+
+    # 3. Проверяем изменения
+    select_query = text("SELECT name FROM students WHERE id = :id")
+    row = db_session.execute(select_query, {"id": student_id}).fetchone()
+
+    assert row is not None
+    assert row[0] == new_name
+
+
+def test_delete_student(db_session):
+    """Позитивный тест: удаление студента."""
+    # 1. Создаем студента
+    insert_query = text(
+        "INSERT INTO students (name, email) VALUES (:name, :email) RETURNING id"
+    )
+    result = db_session.execute(insert_query, {"name": "To Be Deleted", "email": "test_delete@example.com"})
+    student_id = result.scalar()
+
+    # 2. Удаляем его
+    delete_query = text("DELETE FROM students WHERE id = :id")
+    db_session.execute(delete_query, {"id": student_id})
+
+    # 3. Проверяем, что запись исчезла
+    select_query = text("SELECT name FROM students WHERE id = :id")
+    row = db_session.execute(select_query, {"id": student_id}).fetchone()
+
+    assert row is None, "Запись не была удалена"

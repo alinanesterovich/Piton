@@ -1,0 +1,41 @@
+import os
+import pytest
+from db_client import DbClient
+from sqlalchemy import text
+
+
+@pytest.fixture(scope="session")
+def db_client():
+    """
+    Создает клиент БД.
+    Строка подключения берется из переменной окружения DATABASE_URL.
+    Пример: postgresql+psycopg2://myuser:mypassword@localhost:5432/mydatabase
+    """
+    connection_string = os.getenv("DATABASE_URL")
+    if not connection_string:
+        pytest.fail(
+            "Не задана переменная окружения DATABASE_URL. "
+            "Пример: postgresql+psycopg2://myuser:mypassword@localhost:5432/mydatabase"
+        )
+    return DbClient(connection_string)
+
+
+@pytest.fixture
+def db_session(db_client):
+    """
+    Фикстура для управления транзакцией.
+    Открывает соединение, начинает транзакцию.
+    После теста откатывает все изменения (rollback), чтобы база осталась чистой.
+    """
+    connection = db_client.engine.connect()
+    transaction = connection.begin()
+
+    # Можно создать сессию, привязанную к этому соединению, если нужен ORM
+    # session = db_client.Session(bind=connection)
+
+    yield connection
+
+    # Откатываем транзакцию после теста
+    transaction.rollback()
+    connection.close()
+    
