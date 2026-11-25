@@ -16,9 +16,11 @@ class CalculatorPage:
 
         :param driver: Экземпляр WebDriver для управления браузером.
         :type driver: WebDriver
+        :return: None
+        :rtype: None
         """
         self.driver = driver
-        self.wait = WebDriverWait(driver, 60)  # Увеличенный таймаут для медленного калькулятора
+        self.wait = WebDriverWait(driver, 60)
 
     def open(self) -> "CalculatorPage":
         """
@@ -27,7 +29,9 @@ class CalculatorPage:
         :return: Экземпляр текущей страницы для цепочки вызовов.
         :rtype: CalculatorPage
         """
-        self.driver.get("https://bonigarcia.dev/selenium-webdriver-java/slow-calculator.html")
+        self.driver.get(
+            "https://bonigarcia.dev/selenium-webdriver-java/slow-calculator.html"
+        )
         return self
 
     def set_delay(self, seconds: int) -> "CalculatorPage":

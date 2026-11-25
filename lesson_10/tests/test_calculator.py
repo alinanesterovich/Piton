@@ -14,7 +14,10 @@ def browser():
 
 
 @allure.title("Проверка работы медленного калькулятора")
-@allure.description("Тест проверяет, что калькулятор корректно выполняет сложение 7 + 8 с задержкой 45 секунд.")
+@allure.description(
+    "Тест проверяет, что калькулятор корректно выполняет сложение 7 + 8 "
+    "с задержкой 45 секунд."
+)
 @allure.feature("Калькулятор")
 @allure.severity(allure.severity_level.CRITICAL)
 def test_slow_calculator_7_plus_8(browser):
@@ -32,6 +35,9 @@ def test_slow_calculator_7_plus_8(browser):
         page.press_button("8")
         page.press_button("=")
 
-    with allure.step("Проверить, что результат равен 15"):
+    with allure.step("Прочитать результат со страницы"):
         result = page.get_result("15")
+
+    with allure.step("Проверить, что результат равен 15"):
         assert result == "15", f"Ожидалось '15', получено '{result}'"
+
