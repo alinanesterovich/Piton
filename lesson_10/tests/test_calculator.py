@@ -1,13 +1,19 @@
 import allure
 import pytest
 from selenium import webdriver
+from selenium.webdriver.remote.webdriver import WebDriver
 from pages.calculator_page import CalculatorPage
 
 
 @pytest.fixture
-def browser():
-    """Фикстура для запуска браузера Chrome."""
-    driver = webdriver.Chrome()
+def browser() -> WebDriver:
+    """
+    Фикстура для запуска браузера Chrome.
+
+    Yields:
+        WebDriver: Экземпляр веб-драйвера.
+    """
+    driver: WebDriver = webdriver.Chrome()
     driver.maximize_window()
     yield driver
     driver.quit()
@@ -20,8 +26,17 @@ def browser():
 )
 @allure.feature("Калькулятор")
 @allure.severity(allure.severity_level.CRITICAL)
-def test_slow_calculator_7_plus_8(browser):
-    page = CalculatorPage(browser)
+def test_slow_calculator_7_plus_8(browser: WebDriver) -> None:
+    """
+    Тест проверяет работу калькулятора с задержкой.
+
+    Args:
+        browser (WebDriver): Фикстура веб-драйвера.
+
+    Returns:
+        None
+    """
+    page: CalculatorPage = CalculatorPage(browser)
 
     with allure.step("Открыть страницу калькулятора"):
         page.open()
@@ -36,7 +51,7 @@ def test_slow_calculator_7_plus_8(browser):
         page.press_button("=")
 
     with allure.step("Прочитать результат со страницы"):
-        result = page.get_result("15")
+        result: str = page.get_result("15")
 
     with allure.step("Проверить, что результат равен 15"):
         assert result == "15", f"Ожидалось '15', получено '{result}'"

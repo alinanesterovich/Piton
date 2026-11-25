@@ -1,4 +1,6 @@
+from typing import Optional, List
 from selenium.webdriver.remote.webdriver import WebDriver
+from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -6,28 +8,29 @@ from selenium.webdriver.support import expected_conditions as EC
 
 class CalculatorPage:
     """
-    Page Object для страницы калькулятора.
-    Содержит локаторы и методы для взаимодействия с интерфейсом.
+    Класс Page Object для страницы медленного калькулятора.
+    Содержит методы для взаимодействия с элементами страницы.
     """
 
     def __init__(self, driver: WebDriver) -> None:
         """
-        Инициализация страницы.
+        Инициализация страницы калькулятора.
 
-        :param driver: Экземпляр WebDriver для управления браузером.
-        :type driver: WebDriver
-        :return: None
-        :rtype: None
+        Args:
+            driver (WebDriver): Экземпляр веб-драйвера для управления браузером.
+
+        Returns:
+            None
         """
-        self.driver = driver
-        self.wait = WebDriverWait(driver, 60)
+        self.driver: WebDriver = driver
+        self.wait: WebDriverWait = WebDriverWait(driver, 60)
 
     def open(self) -> "CalculatorPage":
         """
-        Открывает страницу калькулятора.
+        Открывает страницу калькулятора в браузере.
 
-        :return: Экземпляр текущей страницы для цепочки вызовов.
-        :rtype: CalculatorPage
+        Returns:
+            CalculatorPage: Экземпляр текущей страницы для цепочки вызовов.
         """
         self.driver.get(
             "https://bonigarcia.dev/selenium-webdriver-java/slow-calculator.html"
@@ -38,12 +41,13 @@ class CalculatorPage:
         """
         Устанавливает задержку вычисления в секундах.
 
-        :param seconds: Количество секунд задержки.
-        :type seconds: int
-        :return: Экземпляр текущей страницы для цепочки вызовов.
-        :rtype: CalculatorPage
+        Args:
+            seconds (int): Количество секунд задержки.
+
+        Returns:
+            CalculatorPage: Экземпляр текущей страницы для цепочки вызовов.
         """
-        delay_input = self.driver.find_element(By.ID, "delay")
+        delay_input: WebElement = self.driver.find_element(By.ID, "delay")
         delay_input.clear()
         delay_input.send_keys(str(seconds))
         return self
@@ -52,12 +56,13 @@ class CalculatorPage:
         """
         Нажимает кнопку на калькуляторе по её тексту.
 
-        :param label: Текст на кнопке (например, '7', '+', '=').
-        :type label: str
-        :return: Экземпляр текущей страницы для цепочки вызовов.
-        :rtype: CalculatorPage
+        Args:
+            label (str): Текст на кнопке (например, '7', '+', '=').
+
+        Returns:
+            CalculatorPage: Экземпляр текущей страницы для цепочки вызовов.
         """
-        button = self.driver.find_element(
+        button: WebElement = self.driver.find_element(
             By.XPATH, f"//div[@class='keys']//span[text()='{label}']"
         )
         button.click()
@@ -67,14 +72,19 @@ class CalculatorPage:
         """
         Ожидает появления результата и возвращает его текст.
 
-        :param expected_text: Ожидаемый текст результата (например, '15').
-        :type expected_text: str
-        :return: Текст, отображаемый в поле результата.
-        :rtype: str
+        Args:
+            expected_text (str): Ожидаемый текст результата (например, '15').
+
+        Returns:
+            str: Текст, отображаемый в поле результата.
         """
         self.wait.until(
             EC.text_to_be_present_in_element(
                 (By.CSS_SELECTOR, ".screen"), expected_text
             )
         )
-        return self.driver.find_element(By.CSS_SELECTOR, ".screen").text.strip()
+        result_element: WebElement = self.driver.find_element(
+            By.CSS_SELECTOR, ".screen"
+        )
+        return result_element.text.strip()
+
