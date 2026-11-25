@@ -1,0 +1,26 @@
+from sqlalchemy import create_engine, text
+from sqlalchemy.orm import sessionmaker
+import os
+
+
+class DbClient:
+    def __init__(self, connection_string):
+        # Создаем движок SQLAlchemy.
+        # Для PostgreSQL с psycopg2 драйвер указывается явно: postgresql+psycopg2
+        self.engine = create_engine(connection_string)
+        self.Session = sessionmaker(bind=self.engine)
+
+    def execute(self, query, params=None):
+        """Выполняет запрос и возвращает результат (для SELECT)."""
+        with self.engine.connect() as conn:
+            result = conn.execute(text(query), params or {})
+            # Для операций, изменяющих данные, нужно подтверждение (commit).
+            # Но в тестах мы будем управлять транзакциями через фикстуры.
+            if query.strip().upper().startswith("SELECT"):
+                return result.fetchall()
+            conn.commit()
+            return result
+
+    def get_session(self):
+        """Возвращает сессию для ORM-операций (если понадобится)."""
+        return self.Session()
